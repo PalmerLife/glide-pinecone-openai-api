@@ -1,5 +1,6 @@
 fastapi
 uvicorn
-python-dotenv
-openai>=1.0.0
+openai
 pinecone-client
+python-dotenv
+gunicorn
