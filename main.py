@@ -40,7 +40,6 @@ def jw_link(book, chapter, verse):
     if not code or not chapter or not verse:
         return ""
 
-    # Pad chapter and verse to two digits
     chapter_str = str(int(chapter)).zfill(2)
     verse_str = str(int(verse)).zfill(2)
 
