@@ -63,14 +63,25 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
     context = "\n".join([match["metadata"]["text"] for match in query_response["matches"]])
     prompt = f"Based on the following context, answer the question as bullet points.\n\nContext:\n{context}\n\nQuestion: {question}\n\n-"
 
-    chat = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant providing Bible-based summaries."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-
+chat = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {
+            "role": "system",
+            "content": (
+                "You are a Bible indexing assistant. You must only summarize or answer using the exact content found "
+                "in the input context. Do not invent scripture, paraphrase beyond the original meaning, or add unrelated verses. "
+                "Each sentence must be traceable to its Bible reference. "
+                "If no relevant note is found, respond: 'No matching notes were found in the database for that scripture.'\n\n"
+                "Return results in this format:\n"
+                "- Answer or summary\n"
+                "- Scripture: [Book Chapter:Verse]\n"
+                "- Source snippet: [exact quote from database]"
+            )
+        },
+        {"role": "user", "content": prompt}
+    ]
+)
     bullet_text = chat.choices[0].message.content.strip()
     bullets = [line.strip("- ").strip() for line in bullet_text.split("\n") if line.strip().startswith("-") or line.strip()]
 
