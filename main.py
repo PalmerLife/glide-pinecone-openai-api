@@ -41,7 +41,7 @@ def jw_link(book, chapter, verse):
         return ""
 
     chapter_str = str(int(chapter)).zfill(2)
-    verse_str = str(int(verse)).zfill(2)
+    verse_str = str(int(verse)).zfill(3)  # <--- 3 digits here is the key fix
 
     return f"https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible={code}{chapter_str}{verse_str}&pub=nwtsty"
 @app.post("/")
