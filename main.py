@@ -9,6 +9,15 @@ from pinecone import Pinecone
 load_dotenv()
 
 app = FastAPI()
+@app.middleware("http")
+async def verify_api_key(request: Request, call_next):
+    expected_key = os.getenv("BACKEND_API_KEY")
+    provided_key = request.headers.get("x-api-key")
+
+    if expected_key and provided_key != expected_key:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid API key")
+
+    return await call_next(request)
 
 # Middleware to allow CORS for testing or Glide frontend
 app.add_middleware(
