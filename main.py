@@ -19,9 +19,29 @@ app.add_middleware(
 )
 
 def jw_link(book, chapter, verse):
-    base = "https://www.jw.org/finder?wtlocale=E&docid=1001061146"
-    return f"{base}&srcid=share&book={book}&chap={int(chapter)}&verse={int(verse)}"
+    book_codes = {
+        "Genesis": "010", "Exodus": "020", "Leviticus": "030", "Numbers": "040", "Deuteronomy": "050",
+        "Joshua": "060", "Judges": "070", "Ruth": "080", "1 Samuel": "090", "2 Samuel": "100",
+        "1 Kings": "110", "2 Kings": "120", "1 Chronicles": "130", "2 Chronicles": "140",
+        "Ezra": "150", "Nehemiah": "160", "Esther": "170", "Job": "180", "Psalms": "190",
+        "Proverbs": "200", "Ecclesiastes": "210", "Song of Solomon": "220", "Isaiah": "230",
+        "Jeremiah": "240", "Lamentations": "250", "Ezekiel": "260", "Daniel": "270",
+        "Hosea": "280", "Joel": "290", "Amos": "300", "Obadiah": "310", "Jonah": "320",
+        "Micah": "330", "Nahum": "340", "Habakkuk": "350", "Zephaniah": "360", "Haggai": "370",
+        "Zechariah": "380", "Malachi": "390", "Matthew": "400", "Mark": "410", "Luke": "420",
+        "John": "430", "Acts": "440", "Romans": "450", "1 Corinthians": "460", "2 Corinthians": "470",
+        "Galatians": "480", "Ephesians": "490", "Philippians": "500", "Colossians": "510",
+        "1 Thessalonians": "520", "2 Thessalonians": "530", "1 Timothy": "540", "2 Timothy": "550",
+        "Titus": "560", "Philemon": "570", "Hebrews": "580", "James": "590", "1 Peter": "600",
+        "2 Peter": "610", "1 John": "620", "2 John": "630", "3 John": "640", "Jude": "650",
+        "Revelation": "660"
+    }
 
+    code = book_codes.get(book)
+    if not code:
+        return ""
+
+    return f"https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible={code}{int(chapter):02d}{int(verse):02d}&pub=nwtsty"
 @app.post("/")
 async def ask_question(request: Request, x_api_key: str = Header(None)):
     if x_api_key != os.getenv("API_KEY"):
