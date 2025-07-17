@@ -32,10 +32,7 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
 
     index = pc.Index(os.getenv("PINECONE_INDEX_NAME"))
     query_response = index.query(
-        vector=client.embeddings.create(
-            input=question,
-            model="text-embedding-3-small"
-        ).data[0].embedding,
+        vector=client.embeddings.create(input=question, model="text-embedding-3-small").data[0].embedding,
         top_k=10,
         include_metadata=True
     )
@@ -69,10 +66,10 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
     for i, b in enumerate(bullets):
         if i < len(query_response["matches"]):
             meta = query_response["matches"][i]["metadata"]
-            title = meta.get("title", "")
+            book = meta.get("title", "")
             chapter = meta.get("chapter")
             verse = meta.get("verse")
-            ref = f"{title} {int(chapter)}:{int(verse)}" if title and chapter and verse else ""
+            ref = f"{book} {int(chapter)}:{int(verse)}" if book and chapter and verse else ""
             link = meta.get("jworg_link", "")
         else:
             ref = ""
