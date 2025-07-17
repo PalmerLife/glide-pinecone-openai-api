@@ -40,12 +40,9 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
         include_metadata=True
     )
 
-    # Build prompt from top-matching context chunks
+    # Prompt construction
     context = "\n".join([match["metadata"]["text"] for match in query_response["matches"]])
-    prompt = (
-        f"Based on the following context, answer the question as bullet points.\n\n"
-        f"Context:\n{context}\n\nQuestion: {question}\n\n-"
-    )
+    prompt = f"Based on the following context, answer the question as bullet points.\n\nContext:\n{context}\n\nQuestion: {question}\n\n-"
 
     chat = client.chat.completions.create(
         model="gpt-4",
@@ -53,8 +50,7 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
             {
                 "role": "system",
                 "content": (
-                    "You are a Bible indexing assistant. You must only use the input context. "
-                    "Do not invent, infer, or paraphrase beyond the original material. "
+                    "You are a Bible indexing assistant. You must only use the input context. Do not invent, infer, or paraphrase beyond the original material. "
                     "Each bullet point must directly quote or summarize a single chunk and must include the exact reference provided in that chunk’s metadata. "
                     "If the chunk has no clear answer, do not generate a point. "
                     "Format each result as:\n"
@@ -74,11 +70,18 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
     for i, b in enumerate(bullets):
         if i < len(query_response["matches"]):
             meta = query_response["matches"][i]["metadata"]
-            book = meta.get("book", "")
+            book = meta.get("book")
             chapter = meta.get("chapter")
             verse = meta.get("verse")
-            ref = f"{book} {chapter}:{verse}" if book and chapter and verse else ""
-            link = meta.get("jworg_link", "")
+            link = meta.get("jworg_link")
+
+            # Safely render reference
+            ref = f"{book} {chapter}:{verse}" if all([book, chapter, verse]) else ""
+            link = link or ""
+
+            # Optional debug (remove later if needed)
+            print(f"[DEBUG] book={book}, chapter={chapter}, verse={verse}, link={link}")
+
         else:
             ref = ""
             link = ""
@@ -89,4 +92,4 @@ async def ask_question(request: Request, x_api_key: str = Header(None)):
             "link": link
         })
 
-    return {"question": question, "bullets": results}
+
